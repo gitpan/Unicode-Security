@@ -33,7 +33,8 @@
       "runtime" : {
          "requires" : {
             "Unicode::Normalize" : "0",
-            "Unicode::UCD" : "0"
+            "Unicode::UCD" : "0",
+            "perl" : "5.008"
          }
       }
    },
@@ -43,5 +44,5 @@
          "url" : "https://github.com/gray/unicode-security"
       }
    },
-   "version" : "0.01"
+   "version" : "0.02"
 }

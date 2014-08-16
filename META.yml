@@ -20,6 +20,7 @@ no_index:
 requires:
   Unicode::Normalize: '0'
   Unicode::UCD: '0'
+  perl: '5.008'
 resources:
   repository: https://github.com/gray/unicode-security
-version: '0.01'
+version: '0.02'
