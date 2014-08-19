@@ -9,7 +9,7 @@ use Unicode::Security::Confusables;
 use Unicode::Normalize qw(NFD);
 use Unicode::UCD qw(charinfo charscript);
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 $VERSION = eval $VERSION;
 
 our @EXPORT_OK = qw(
@@ -65,7 +65,7 @@ sub whole_script_confusable {
     # Canonicalize the script name to match the format used in %WS.
     $target = ucfirst lc $target;
 
-    my %soss; $soss{ charscript(ord($_)) }{$_} = \1 for split //, NFD $str;
+    my %soss = soss(NFD $str);
     delete @soss{qw(Common Inherited)};
 
     my $count = keys %soss or return '';
@@ -81,7 +81,7 @@ sub whole_script_confusable {
 # Algorithm described here:
 #   http://www.unicode.org/reports/tr39/#Mixed_Script_Confusables
 sub mixed_script_confusable {
-    my %soss; $soss{ charscript(ord($_)) }{$_} = \1 for split //, NFD $_[0];
+    my %soss = soss(NFD $_[0]);
     delete @soss{qw(Common Inherited)};
 
     my @soss = keys %soss;
@@ -108,7 +108,13 @@ sub mixed_script_confusable {
 
 
 sub soss {
-    return map { charscript(ord($_)) => \1 } split //, $_[0];
+    my %soss;
+    for my $char (split //, $_[0]) {
+        my $script = charscript(ord($char));
+        $script = 'Unknown' unless defined $script;
+        $soss{$script}{$char} = \1;
+    }
+    return %soss;
 }
 
 
@@ -174,7 +180,10 @@ Unicode::Security - Unicode security mechanisms
 
 =head1 SYNOPSIS
 
-    use Unicode::Security qw(confusable restriction_level);
+    use Unicode::Security qw(
+        confusable restriction_level whole_script_confusable
+        mixed_script_confusable mixed_script mixed_number
+    );
 
     $truth = confusable($string1, $string2);
     $truth = whole_script_confusable($script, $string);
@@ -192,7 +201,7 @@ Technical Standard #39.
 
 =head2 confusable
 
-    $truth = confusable($string1 [, $string2])
+    $truth = confusable($string1,  $string2)
 
 Returns true if the two strings are visually confusable.
 
